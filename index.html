@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Echo Bot Interactive Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        #chat {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            background-color: #fff;
+        }
+        .user-message, .bot-message {
+            margin: 10px 0;
+        }
+        .user-message {
+            text-align: right;
+        }
+        .bot-message {
+            text-align: left;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+        }
+        button {
+            padding: 10px 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>與 Echo Bot 互動</h1>
+    <div id="chat"></div>
+    <input type="text" id="userInput" placeholder="輸入訊息..." />
+    <button onclick="sendMessage()">送出訊息</button>
+
+    <script>
+        const chatDiv = document.getElementById("chat");
+        const userInput = document.getElementById("userInput");
+
+        // 顯示訊息函式
+        function displayMessage(text, sender) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add(sender + "-message");
+            messageDiv.textContent = text;
+            chatDiv.appendChild(messageDiv);
+            chatDiv.scrollTop = chatDiv.scrollHeight;  // 滾動至最新訊息
+        }
+
+        // 發送訊息到 API
+        async function sendMessage() {
+            const message = userInput.value;
+            if (message.trim() === "") return;
+
+            // 顯示使用者訊息
+            displayMessage(message, "user");
+
+            // 清空輸入框
+            userInput.value = "";
+
+            // 構造 POST 請求
+            const response = await fetch("/api/messages", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    type: "message",
+                    text: message
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                displayMessage(data.reply, "bot");  // 顯示機器人回覆
+            } else {
+                displayMessage("機器人未回應，請稍後再試。", "bot");
+            }
+        }
+
+        // 監聽 Enter 鍵發送訊息
+        userInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

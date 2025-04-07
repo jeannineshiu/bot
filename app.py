@@ -1,27 +1,24 @@
-import asyncio
+import os
 from aiohttp import web
 from botbuilder.core import BotFrameworkAdapter, BotFrameworkAdapterSettings, TurnContext
 from botbuilder.schema import Activity
 
-# 如果你有設定 Microsoft App Id 及 Microsoft App Password，請填入以下變數
+# 設定 Microsoft App Id 和 App Password
 APP_ID = "a9731db8-42c7-46b9-87a5-5c6231e68eca"  # 如果本地測試可以留空
 APP_PASSWORD = "ff78195e-10e3-48e8-be1a-11146e8f9ec7"  # 如果本地測試可以留空
 
 adapter_settings = BotFrameworkAdapterSettings(APP_ID, APP_PASSWORD)
 adapter = BotFrameworkAdapter(adapter_settings)
 
-# 定義一個簡單的 Echo Bot
 class EchoBot:
     async def on_turn(self, turn_context: TurnContext):
         if turn_context.activity.type == "message":
-            # 回覆使用者所傳的訊息
             await turn_context.send_activity(f"你說：{turn_context.activity.text}")
 
 bot = EchoBot()
 
-# 定義 HTTP POST /api/messages 的處理函式
+# 處理訊息的 API 路由
 async def messages(request: web.Request) -> web.Response:
-    # 檢查是否為 JSON 格式
     if "application/json" in request.headers.get("Content-Type", ""):
         body = await request.json()
     else:
@@ -33,38 +30,23 @@ async def messages(request: web.Request) -> web.Response:
     async def aux_func(turn_context: TurnContext):
         await bot.on_turn(turn_context)
 
-    # 處理傳入的活動
     await adapter.process_activity(activity, auth_header, aux_func)
     return web.Response(status=201)
 
-# 定義首頁路由，顯示 HTML 內容
+# 處理首頁，顯示聊天介面的 HTML 頁面
 async def home(request: web.Request) -> web.Response:
-    html_content = """
-    <!DOCTYPE html>
-    <html lang="zh-TW">
-    <head>
-        <meta charset="UTF-8">
-        <title>Echo Bot API</title>
-    </head>
-    <body>
-        <h1>歡迎使用 Echo Bot API</h1>
-        <p>這個服務提供機器人 API 端點，請透過 /api/messages 路由發送 POST 請求來與機器人互動。</p>
-    </body>
-    </html>
-    """
+    html_content = open(os.path.join(os.path.dirname(__file__), "index.html")).read()
     return web.Response(text=html_content, content_type="text/html")
 
+# 創建應用程式
 app = web.Application()
 
-# 新增首頁路由
-app.router.add_get("/", home)
-
-# 保留原來的 Bot API 路由
-app.router.add_post("/api/messages", messages)
+# 路由配置
+app.router.add_get("/", home)  # 顯示聊天頁面
+app.router.add_post("/api/messages", messages)  # 訊息處理 API
 
 if __name__ == "__main__":
     try:
-        # 這邊的 port 可以根據需要修改，預設是 8000
         web.run_app(app, host="0.0.0.0", port=8000)
     except Exception as error:
         raise error
