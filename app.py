@@ -4,8 +4,8 @@ from botbuilder.core import BotFrameworkAdapter, BotFrameworkAdapterSettings, Tu
 from botbuilder.schema import Activity
 
 # 如果你有設定 Microsoft App Id 及 Microsoft App Password，請填入以下變數
-APP_ID = ""  # 如果本地測試可以留空
-APP_PASSWORD = ""  # 如果本地測試可以留空
+APP_ID = "a9731db8-42c7-46b9-87a5-5c6231e68eca"  # 如果本地測試可以留空
+APP_PASSWORD = "ff78195e-10e3-48e8-be1a-11146e8f9ec7"  # 如果本地測試可以留空
 
 adapter_settings = BotFrameworkAdapterSettings(APP_ID, APP_PASSWORD)
 adapter = BotFrameworkAdapter(adapter_settings)
