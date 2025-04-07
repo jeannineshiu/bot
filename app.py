@@ -37,12 +37,34 @@ async def messages(request: web.Request) -> web.Response:
     await adapter.process_activity(activity, auth_header, aux_func)
     return web.Response(status=201)
 
+# 定義首頁路由，顯示 HTML 內容
+async def home(request: web.Request) -> web.Response:
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8">
+        <title>Echo Bot API</title>
+    </head>
+    <body>
+        <h1>歡迎使用 Echo Bot API</h1>
+        <p>這個服務提供機器人 API 端點，請透過 /api/messages 路由發送 POST 請求來與機器人互動。</p>
+    </body>
+    </html>
+    """
+    return web.Response(text=html_content, content_type="text/html")
+
 app = web.Application()
+
+# 新增首頁路由
+app.router.add_get("/", home)
+
+# 保留原來的 Bot API 路由
 app.router.add_post("/api/messages", messages)
 
 if __name__ == "__main__":
     try:
-        #web.run_app(app, host="localhost", port=3978)
+        # 這邊的 port 可以根據需要修改，預設是 8000
         web.run_app(app, host="0.0.0.0", port=8000)
     except Exception as error:
         raise error
