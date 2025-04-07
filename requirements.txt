@@ -1,0 +1,7 @@
+aiohttp
+botbuilder-core==4.16.2
+botbuilder-schema==4.16.2
+botframework-connector==4.16.2
+botframework-streaming==4.16.2
+msrest
+requests
